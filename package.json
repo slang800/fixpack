@@ -22,7 +22,7 @@
     "package"
   ],
   "license": "GPL-3.0",
-  "main": "fixpack.js",
+  "main": "lib",
   "preferGlobal": true,
   "repository": {
     "type": "git",
