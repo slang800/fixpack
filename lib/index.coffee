@@ -56,7 +56,7 @@ LICENSE_MISPELLINGS = [
   'lisence'
 ]
 
-checkMissing = (pack, fileName, {quiet}) ->
+checkMissing = (pack, {log}) ->
   required = config.required
   warnItems = (
     if pack.private
@@ -67,21 +67,20 @@ checkMissing = (pack, fileName, {quiet}) ->
 
   for key in required
     if not pack[key]
-      throw new Error("#{fileName} missing required key: #{key}")
+      throw new Error("missing required key: #{key}")
 
   for key in warnItems
-    if not pack[key] and not quiet
-      console.log "#{fileName} missing: #{key}"
+    if not pack[key]
+      log "missing: #{key}"
 
-fixLicense = (pack, file, {quiet}) ->
+fixLicense = (pack, {log}) ->
   if pack.licenses?
-    console.warn "#{file}: invalid key 'licenses' found, not fixing"
+    log 'invalid key \'licenses\' found, not fixing'
 
   if not pack.license?
     for key, value of pack
       if key.toLowerCase() in LICENSE_MISPELLINGS
-        console.warn "#{file}: mispelled key '#{key}' found, corrected to
-        'license'"
+        log "mispelled key '#{key}' found, corrected to 'license'"
         pack.license = value
         delete pack[key]
         break
@@ -89,13 +88,13 @@ fixLicense = (pack, file, {quiet}) ->
   if pack.license? and pack.license isnt 'UNLICENSED' and
      not spdx.valid(pack.license)
     corrected = correctLicense(pack.license)
-    console.warn "#{file}: invalid SPDX license expression '#{pack.license}',
-    corrected to '#{corrected}'"
+    log "invalid SPDX license expression '#{pack.license}', corrected
+    to '#{corrected}'"
     pack.license = corrected
 
   if not pack.license?
-    console.warn "#{file}: license field missing - defaulting to 'UNLICENSED'
-    (disallows others from using this module)"
+    log "license field missing - defaulting to 'UNLICENSED' (disallows
+    others from using this module)"
     pack.license = 'UNLICENSED'
 
 sortAlphabetically = (object) ->
@@ -121,13 +120,20 @@ module.exports = (file, {quiet}) ->
     else
       throw err
 
+  log = (
+    if quiet
+      -> # noop
+    else
+      (message) -> console.log "#{file}: #{message}"
+  )
+
   pack = ALCE.parse(original)
   out = {}
   outputString = ''
 
   # make sure we have everything
-  checkMissing pack, file, {quiet}
-  fixLicense(pack, file, {quiet})
+  checkMissing pack, {log}
+  fixLicense(pack, {log})
 
   # handle the specific ones we want, then remove
   for key in config.sortToTop
@@ -150,6 +156,6 @@ module.exports = (file, {quiet}) ->
   outputString = JSON.stringify(out, null, 2) + '\n'
   if outputString isnt original
     fs.writeFileSync file, outputString, encoding: 'utf8'
-    if not quiet then console.log "#{file}: fixed"
+    log 'fixed'
   else
-    if not quiet then console.log "#{file}: already clean"
+    log 'already clean'
