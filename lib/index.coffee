@@ -24,11 +24,14 @@ checkMissing = (pack, config) ->
 
 sortAlphabetically = (object) ->
   if Array.isArray(object)
-    object.sort()
+    object.sort((a, b) -> if a is b then 0 else if a > b then 1 else -1)
     return object
   else
     sorted = {}
-    Object.keys(object).sort().forEach (key) ->
+    keys = Object.keys(object).sort(
+      (a, b) -> if a is b then 0 else if a > b then 1 else -1
+    )
+    for key in keys
       sorted[key] = object[key]
     return sorted
 
