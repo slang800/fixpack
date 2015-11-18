@@ -1,5 +1,7 @@
 ALCE = require 'alce'
+correctLicense = require 'spdx-correct'
 fs = require 'fs'
+spdx = require 'spdx'
 
 config =
   sortToTop: [
@@ -38,6 +40,22 @@ config =
     'keywords'
   ]
 
+# list of mispellings of the word "license", extracted from field totals in the
+# npm database
+LICENSE_MISPELLINGS = [
+  'licence'
+  'licencse'
+  'licensce'
+  'license:'
+  'licese'
+  'licnense'
+  'liecnse'
+  'lincense'
+  'linsence'
+  'liscense'
+  'lisence'
+]
+
 checkMissing = (pack, fileName, {quiet}) ->
   required = config.required
   warnItems = (
@@ -54,6 +72,31 @@ checkMissing = (pack, fileName, {quiet}) ->
   for key in warnItems
     if not pack[key] and not quiet
       console.log "#{fileName} missing: #{key}"
+
+fixLicense = (pack, file, {quiet}) ->
+  if pack.licenses?
+    console.warn "#{file}: invalid key 'licenses' found, not fixing"
+
+  if not pack.license?
+    for key, value of pack
+      if key.toLowerCase() in LICENSE_MISPELLINGS
+        console.warn "#{file}: mispelled key '#{key}' found, corrected to
+        'license'"
+        pack.license = value
+        delete pack[key]
+        break
+
+  if pack.license? and pack.license isnt 'UNLICENSED' and
+     not spdx.valid(pack.license)
+    corrected = correctLicense(pack.license)
+    console.warn "#{file}: invalid SPDX license expression '#{pack.license}',
+    corrected to '#{corrected}'"
+    pack.license = corrected
+
+  if not pack.license?
+    console.warn "#{file}: license field missing - defaulting to 'UNLICENSED'
+    (disallows others from using this module)"
+    pack.license = 'UNLICENSED'
 
 sortAlphabetically = (object) ->
   if Array.isArray(object)
@@ -84,6 +127,7 @@ module.exports = (file, {quiet}) ->
 
   # make sure we have everything
   checkMissing pack, file, {quiet}
+  fixLicense(pack, file, {quiet})
 
   # handle the specific ones we want, then remove
   for key in config.sortToTop

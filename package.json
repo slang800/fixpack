@@ -9,7 +9,9 @@
   },
   "dependencies": {
     "alce": "1.0.0",
-    "argparse": "^1.0.3"
+    "argparse": "^1.0.3",
+    "spdx": "^0.4.1",
+    "spdx-correct": "^1.0.2"
   },
   "devDependencies": {
     "coffee-script": "^1.10.0"
