@@ -1,26 +1,59 @@
 ALCE = require 'alce'
-extend = require 'extend-object'
 fs = require 'fs'
-path = require 'path'
-require 'colors'
 
-defaultConfig = require('./config')
+config =
+  sortToTop: [
+    'name'
+    'description'
+    'version'
+    'author'
+  ]
+  required: [
+    'name'
+    'version'
+  ]
+  warn: [
+    'description'
+    'author'
+    'repository'
+    'keywords'
+    'main'
+    'bugs'
+    'homepage'
+    'license'
+  ]
+  warnOnPrivate: [
+    'name'
+    'version'
+    'description'
+    'main'
+  ]
+  sortedSubItems: [
+    'dependencies'
+    'devDependencies'
+    'peerDependencies'
+    'optionalDependencies'
+    'jshintConfig'
+    'scripts'
+    'keywords'
+  ]
 
-checkMissing = (pack, config) ->
-  if pack.private
-    warnItems = config.warnOnPrivate
-    required = config.requiredOnPrivate
-  else
-    warnItems = config.warn
-    required = config.required
+checkMissing = (pack, fileName, {quiet}) ->
+  required = config.required
+  warnItems = (
+    if pack.private
+      config.warnOnPrivate
+    else
+      config.warn
+  )
 
-  required.forEach (key) ->
+  for key in required
     if not pack[key]
-      throw new Error(config.fileName + ' files must have a ' + key)
+      throw new Error("#{fileName} missing required key: #{key}")
 
-  warnItems.forEach (key) ->
-    if not pack[key] and not config.quiet
-      console.log ('missing ' + key).yellow
+  for key in warnItems
+    if not pack[key] and not quiet
+      console.log "#{fileName} missing: #{key}"
 
 sortAlphabetically = (object) ->
   if Array.isArray(object)
@@ -35,24 +68,25 @@ sortAlphabetically = (object) ->
       sorted[key] = object[key]
     return sorted
 
-module.exports = (file, config) ->
-  config = extend(defaultConfig, config or {})
-  if not fs.existsSync(file)
-    if not config.quiet
-      console.log ('No such file: ' + file).red
-    process.exit 1
+module.exports = (file, {quiet}) ->
+  try
+    original = fs.readFileSync(file, encoding: 'utf8')
+  catch err
+    if err.code is 'ENOENT'
+      console.error "ENOENT: no such file '#{file}'"
+      process.exit 1
+    else
+      throw err
 
-  config.fileName = path.basename(file)
-  original = fs.readFileSync(file, encoding: 'utf8')
   pack = ALCE.parse(original)
   out = {}
   outputString = ''
 
   # make sure we have everything
-  checkMissing pack, config
+  checkMissing pack, file, {quiet}
 
   # handle the specific ones we want, then remove
-  config.sortToTop.forEach (key) ->
+  for key in config.sortToTop
     if pack[key]
       out[key] = pack[key]
     delete pack[key]
@@ -65,16 +99,13 @@ module.exports = (file, config) ->
     out[key] = pack[key]
 
   # sort some sub items alphabetically
-  config.sortedSubItems.forEach (key) ->
-    if out[key]
-      out[key] = sortAlphabetically(out[key])
+  for key in config.sortedSubItems
+    if out[key] then out[key] = sortAlphabetically(out[key])
 
   # write it out
   outputString = JSON.stringify(out, null, 2) + '\n'
   if outputString isnt original
     fs.writeFileSync file, outputString, encoding: 'utf8'
-    if not config.quiet
-      console.log config.fileName.bold + ' fixed'.green + '!'
+    if not quiet then console.log "#{file}: fixed"
   else
-    if not config.quiet
-      console.log config.fileName.bold + ' already clean'.green + '!'
+    if not quiet then console.log "#{file}: already clean"

@@ -9,9 +9,7 @@
   },
   "dependencies": {
     "alce": "1.0.0",
-    "colors": "*",
-    "extend-object": "^1.0.0",
-    "rc": "^0.6.0"
+    "argparse": "^1.0.3"
   },
   "devDependencies": {
     "coffee-script": "^1.10.0"

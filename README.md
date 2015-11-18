@@ -49,59 +49,6 @@ fixpack
 npm i cool_package --save && fixpack
 ```
 
-## Configuration
-
-It's configurable. You can create a `.fixpackrc` file in your project or anywhere up the tree to your `$HOME` directory. Or overwrite options via CLI arguments.
-
-Uses the [rc](https://www.npmjs.com/package/rc) module to do this. So you can pass all these as CLI args too.
-
-The available options and their defaults shown below: 
-
-```js
-
-{
-    // will put these first in this order if present
-    sortToTop: [
-        'name',
-        'description',
-        'version',
-        'author'
-    ],
-    // will error if these not present
-    required: [
-        'name',
-        'version'
-    ],
-    // will warn if these not present
-    warn: [
-        'description',
-        'author',
-        'repository',
-        'keywords',
-        'main',
-        'bugs',
-        'homepage',
-        'license'
-    ],
-    // if `private: true` in package.json will use the next two lists instead
-    requiredOnPrivate: [],
-    warnOnPrivate: ['name', 'version', 'description', 'main'],
-    // sub items to sort by default
-    sortedSubItems: [
-        'dependencies',
-        'devDependencies',
-        'jshintConfig',
-        'scripts',
-        'keywords'
-    ],
-    // if you set quiet to true it won't do output anything to the console
-    quiet: false,
-    // files to scrub
-    files: ['package.json']
-}
-
-```
-
 ## Changelog
 
 - 2.0.1 - don't error on missing bower file by default.
