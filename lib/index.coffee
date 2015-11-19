@@ -1,6 +1,5 @@
 ALCE = require 'alce'
 correctLicense = require 'spdx-correct'
-fs = require 'fs'
 spdx = require 'spdx'
 
 config =
@@ -110,24 +109,8 @@ sortAlphabetically = (object) ->
       sorted[key] = object[key]
     return sorted
 
-module.exports = (file, {quiet}) ->
-  try
-    original = fs.readFileSync(file, encoding: 'utf8')
-  catch err
-    if err.code is 'ENOENT'
-      console.error "ENOENT: no such file '#{file}'"
-      process.exit 1
-    else
-      throw err
-
-  log = (
-    if quiet
-      -> # noop
-    else
-      (message) -> console.log "#{file}: #{message}"
-  )
-
-  pack = ALCE.parse(original)
+module.exports = (originalContent, {log}) ->
+  pack = ALCE.parse(originalContent)
   out = {}
   outputString = ''
 
@@ -152,10 +135,4 @@ module.exports = (file, {quiet}) ->
   for key in config.sortedSubItems
     if out[key] then out[key] = sortAlphabetically(out[key])
 
-  # write it out
-  outputString = JSON.stringify(out, null, 2) + '\n'
-  if outputString isnt original
-    fs.writeFileSync file, outputString, encoding: 'utf8'
-    log 'fixed'
-  else
-    log 'already clean'
+  JSON.stringify(out, null, 2) + '\n'
