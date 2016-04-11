@@ -21,7 +21,7 @@
     "cleanup",
     "package"
   ],
-  "license": "MIT",
+  "license": "GPL-3.0",
   "main": "fixpack.js",
   "preferGlobal": true,
   "repository": {
