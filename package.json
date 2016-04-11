@@ -3,7 +3,7 @@
   "description": "cli tool that cleans up package.json files.",
   "version": "2.2.0",
   "author": "Henrik Joreteg <henrik@andyet.net>",
-  "bin": "./bin/fixpack",
+  "bin": "./bin/index.js",
   "bugs": {
     "url": "https://github.com/henrikjoreteg/fixpack/issues"
   },
