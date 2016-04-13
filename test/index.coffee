@@ -40,6 +40,34 @@ describe 'fixpack', ->
       }
     ''')
 
+  it 'should remove duplicate dependencies', ->
+    fixpack('''
+      {
+        "name": "fixpack",
+        "version": "1.2.3",
+        "dependencies": {
+          "coffee-script": "^1.10.0"
+        },
+        "devDependencies": {
+          "mocha": "^2.4.5",
+          "coffee-script": "^1.10.0"
+        },
+        "license": "GPL-3.0"
+      }
+    ''').should.equal('''
+      {
+        "name": "fixpack",
+        "version": "1.2.3",
+        "dependencies": {
+          "coffee-script": "^1.10.0"
+        },
+        "devDependencies": {
+          "mocha": "^2.4.5"
+        },
+        "license": "GPL-3.0"
+      }
+    ''')
+
   it 'should fix license field mispelling', ->
     fixpack('''
       {

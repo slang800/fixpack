@@ -110,6 +110,16 @@ sortAlphabetically = (object) ->
       sorted[key] = object[key]
     return sorted
 
+checkForDuplicateDependencies = (pack, {log}) ->
+  if not pack.dependencies? or not pack.devDependencies? then return
+  deps = Object.keys(pack.dependencies)
+  for name of pack.devDependencies
+    # the entries in the `dependencies` field take precedence over
+    # `devDependencies`, so we don't even need to check for version numbers
+    if name in deps
+      log "duplicate dependency '#{name}' found, removing from devDependencies"
+      delete pack.devDependencies[name]
+
 module.exports = (originalContent, {log}) ->
   pack = ALCE.parse(originalContent)
   out = {}
@@ -118,6 +128,7 @@ module.exports = (originalContent, {log}) ->
   # make sure we have everything
   checkMissing pack, {log}
   fixLicense(pack, {log})
+  checkForDuplicateDependencies(pack, {log})
 
   cleanedVersionString = semver.clean(pack.version)
   if cleanedVersionString is null
