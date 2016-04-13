@@ -14,7 +14,9 @@
     "spdx-correct": "^1.0.2"
   },
   "devDependencies": {
-    "coffee-script": "^1.10.0"
+    "coffee-script": "^1.10.0",
+    "mocha": "^2.4.5",
+    "should": "^8.3.0"
   },
   "homepage": "https://github.com/henrikjoreteg/fixpack",
   "keywords": [
@@ -27,5 +29,8 @@
   "repository": {
     "type": "git",
     "url": "git://github.com/henrikjoreteg/fixpack"
+  },
+  "scripts": {
+    "test": "mocha"
   }
 }

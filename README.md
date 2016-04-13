@@ -1,5 +1,7 @@
 # fixpack
 
+[![Build Status](http://img.shields.io/travis/slang800/fixpack.svg?style=flat-square)](https://travis-ci.org/slang800/fixpack) [![NPM version](http://img.shields.io/npm/v/fixpack.svg?style=flat-square)](https://www.npmjs.org/package/fixpack) [![NPM license](http://img.shields.io/npm/l/fixpack.svg?style=flat-square)](https://www.npmjs.org/package/fixpack)
+
 A package.json file scrubber for the truly insane.
 
 It will re-write your package.json file as follows:
