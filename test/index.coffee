@@ -69,3 +69,18 @@ describe 'fixpack', ->
         "license": "GPL-3.0"
       }
     ''')
+
+  it 'should fix version strings', ->
+    fixpack('''
+      {
+        "name": "fixpack",
+        "version": "  =v1.2.3   ",
+        "licence": "GPLv3"
+      }
+    ''').should.equal('''
+      {
+        "name": "fixpack",
+        "version": "1.2.3",
+        "license": "GPL-3.0"
+      }
+    ''')

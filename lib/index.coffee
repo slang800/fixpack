@@ -1,5 +1,6 @@
 ALCE = require 'alce'
 correctLicense = require 'spdx-correct'
+semver = require 'semver'
 spdx = require 'spdx'
 
 config =
@@ -117,6 +118,11 @@ module.exports = (originalContent, {log}) ->
   # make sure we have everything
   checkMissing pack, {log}
   fixLicense(pack, {log})
+
+  cleanedVersionString = semver.clean(pack.version)
+  if cleanedVersionString is null
+    throw new Error("invalid version string '#{pack.version}'")
+  pack.version = cleanedVersionString
 
   # handle the specific ones we want, then remove
   for key in config.sortToTop

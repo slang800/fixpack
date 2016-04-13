@@ -10,6 +10,7 @@
   "dependencies": {
     "alce": "1.0.0",
     "argparse": "^1.0.3",
+    "semver": "^5.1.0",
     "spdx": "^0.4.1",
     "spdx-correct": "^1.0.2"
   },
